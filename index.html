@@ -31,18 +31,6 @@
       margin: 10px 0;
     }
 
-    .auth {
-      text-align: right;
-      margin: 10px;
-      width: 100%;
-    }
-
-    button {
-      padding: 10px;
-      margin: 5px;
-      cursor: pointer;
-    }
-
     #video-list {
       display: flex;
       flex-wrap: wrap;
@@ -70,115 +58,104 @@
       font-size: 16px;
       text-align: center;
     }
+
+    input {
+      padding: 10px;
+      margin-top: 20px;
+      font-size: 16px;
+      width: 300px;
+    }
+
+    button {
+      padding: 10px;
+      margin: 5px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="auth">
-      <button id="loginBtn">Login with Google</button>
-      <button id="logoutBtn" style="display: none;">Logout</button>
-    </div>
     <h1>YouTube Clone</h1>
+    <input type="text" id="search-query" placeholder="Search for videos..." />
+    <button id="search-btn">Search</button>
   </header>
 
   <div id="video-list">
     <!-- Videos will appear here -->
   </div>
 
-  <!-- Firebase and YouTube API scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <!-- YouTube API Script -->
   <script src="https://apis.google.com/js/api.js"></script>
   <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyB4HiV-vR8ZwqH2VIAT9HaPC--lPVN6B1U",
-      authDomain: "memechat2-54d1d.firebaseapp.com",
-      databaseURL: "https://memechat2-54d1d-default-rtdb.firebaseio.com",
-      projectId: "memechat2-54d1d",
-      storageBucket: "memechat2-54d1d.appspot.com",
-      messagingSenderId: "598300946052",
-      appId: "1:598300946052:web:7eed3b96d89933b1159cd1"
-    };
+    const apiKey = 'AIzaSyBkPGe5Omx22wstG3ISozc1XkFjqqY5idM'; // Replace with your new YouTube API key
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-query');
+    const videoList = document.getElementById('video-list');
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-
-    // Authenticate with Google
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-
-    loginBtn.addEventListener('click', () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider)
-        .then((result) => {
-          console.log(result.user);
-          loginBtn.style.display = 'none';
-          logoutBtn.style.display = 'block';
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    });
-
-    logoutBtn.addEventListener('click', () => {
-      firebase.auth().signOut().then(() => {
-        loginBtn.style.display = 'block';
-        logoutBtn.style.display = 'none';
-      }).catch((error) => {
-        console.error(error);
-      });
-    });
-
-    // YouTube API setup
-    const apiKey = 'AIzaSyAgPgbCB_o8Ent3VGuh-JbrR7br98mra5k';
-
-    function loadVideos() {
+    // Load the YouTube API client
+    function loadYouTubeClient() {
       gapi.client.setApiKey(apiKey);
-      gapi.client.load('youtube', 'v3', () => {
-        const request = gapi.client.youtube.search.list({
-          part: 'snippet',
-          q: 'coding tutorials', // Change to your desired query
-          type: 'video',
-          maxResults: 6
-        });
-
-        request.execute((response) => {
-          displayVideos(response.items);
-        });
+      gapi.client.load('youtube', 'v3', function() {
+        console.log('YouTube API client loaded successfully');
       });
     }
 
+    // Function to load videos based on search query
+    function loadVideos(query) {
+      if (!gapi.client.youtube) {
+        console.error('YouTube API client not loaded');
+        return;
+      }
+
+      const request = gapi.client.youtube.search.list({
+        part: 'snippet',
+        q: query, // Search query
+        type: 'video',
+        maxResults: 6
+      });
+
+      request.execute(function(response) {
+        if (response.error) {
+          console.error('Error fetching videos:', response.error);
+        } else {
+          displayVideos(response.items);
+        }
+      });
+    }
+
+    // Function to display videos on the page
     function displayVideos(videos) {
-      const videoList = document.getElementById('video-list');
-      videoList.innerHTML = '';
+      videoList.innerHTML = ''; // Clear previous results
 
       videos.forEach(video => {
         const videoCard = document.createElement('div');
         videoCard.classList.add('video-card');
-        
+
         const videoIframe = document.createElement('iframe');
         videoIframe.src = `https://www.youtube.com/embed/${video.id.videoId}`;
         videoCard.appendChild(videoIframe);
-        
+
         const title = document.createElement('h3');
         title.textContent = video.snippet.title;
         videoCard.appendChild(title);
-        
+
         videoList.appendChild(videoCard);
       });
     }
 
-    // Load the YouTube API
-    function init() {
-      gapi.load('client', loadVideos);
-    }
-
-    // Initialize Google API
-    window.onload = () => {
-      gapi.load('client', init);
+    // Initialize YouTube API client when the page loads
+    window.onload = function() {
+      gapi.load('client', loadYouTubeClient); // Load API client and then search
     };
+
+    // Add event listener to the search button
+    searchBtn.addEventListener('click', () => {
+      const query = searchInput.value.trim();
+      if (query) {
+        loadVideos(query);
+      }
+    });
   </script>
 
 </body>
