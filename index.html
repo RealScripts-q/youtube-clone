@@ -161,15 +161,13 @@
 
   <!-- Video Container -->
   <div class="video-container" id="video-container">
-    <iframe id="video-iframe" src="https://www.youtube.com/embed/6iTgOWwkWC8" title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <iframe id="video-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </div>
 
   <!-- Video Information Section -->
   <div class="video-info" id="video-info">
-    <div class="video-title" id="video-title">I'm Super Sorry..</div>
-    <div class="video-description" id="video-description">
-      This is a short description of the video. Here you can add more information about the video, like its content or context.
-    </div>
+    <div class="video-title" id="video-title">Video Title</div>
+    <div class="video-description" id="video-description">Video description will appear here...</div>
 
     <!-- Like, Dislike, and Subscribe Buttons -->
     <div class="video-actions">
@@ -218,13 +216,13 @@
       });
     }
 
-    // Fetch video recommendations based on a sample video ID
+    // Fetch video recommendations
     function fetchRecommendations() {
       const request = gapi.client.youtube.search.list({
         part: 'snippet',
-        relatedToVideoId: '6iTgOWwkWC8', // Sample video ID
         type: 'video',
-        maxResults: 5
+        maxResults: 5,
+        order: 'viewCount' // Fetch the most popular videos
       });
 
       request.execute(function(response) {
