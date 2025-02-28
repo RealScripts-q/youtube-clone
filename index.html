@@ -17,6 +17,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 20px;
     }
 
     header {
@@ -31,131 +32,255 @@
       margin: 10px 0;
     }
 
-    #video-list {
+    .video-container {
+      width: 853px;
+      height: 480px;
+      position: relative;
+      margin-top: 20px;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+    }
+
+    .video-info {
+      margin-top: 20px;
+      width: 853px;
+      padding: 15px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .video-title {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .video-description {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #555;
+    }
+
+    .video-actions {
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+    }
+
+    .video-actions button {
+      padding: 8px 15px;
+      margin-right: 10px;
+      cursor: pointer;
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .video-actions button:hover {
+      background-color: #ddd;
+    }
+
+    .subscribe-btn {
+      background-color: #FF0000;
+      color: white;
+      font-weight: bold;
+    }
+
+    .comments-section {
+      margin-top: 40px;
+      width: 853px;
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .comment-box {
+      margin-top: 10px;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .comment-box:focus {
+      outline: none;
+      border-color: #FF0000;
+    }
+
+    .comment-list {
+      margin-top: 20px;
+    }
+
+    .comment {
+      margin-bottom: 15px;
+      font-size: 16px;
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .comment .username {
+      font-weight: bold;
+    }
+
+    .recommendations {
+      margin-top: 30px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-around;
       width: 80%;
-      margin-top: 20px;
     }
 
-    .video-card {
-      width: 300px;
-      margin: 20px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      background-color: white;
-    }
-
-    .video-card iframe {
-      width: 100%;
-      height: 200px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .video-card h3 {
-      padding: 10px;
-      font-size: 16px;
-      text-align: center;
-    }
-
-    input {
-      padding: 10px;
-      margin-top: 20px;
-      font-size: 16px;
-      width: 300px;
-    }
-
-    button {
-      padding: 10px;
-      margin: 5px;
+    .recommendation {
+      width: 150px;
+      margin: 10px;
       cursor: pointer;
+      transition: transform 0.3s;
     }
+
+    .recommendation img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .recommendation:hover {
+      transform: scale(1.05);
+    }
+
   </style>
 </head>
 <body>
 
   <header>
     <h1>YouTube Clone</h1>
-    <input type="text" id="search-query" placeholder="Search for videos..." />
-    <button id="search-btn">Search</button>
   </header>
 
-  <div id="video-list">
-    <!-- Videos will appear here -->
+  <!-- Video Container -->
+  <div class="video-container" id="video-container">
+    <iframe id="video-iframe" src="https://www.youtube.com/embed/6iTgOWwkWC8" title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
   </div>
 
-  <!-- YouTube API Script -->
+  <!-- Video Information Section -->
+  <div class="video-info" id="video-info">
+    <div class="video-title" id="video-title">I'm Super Sorry..</div>
+    <div class="video-description" id="video-description">
+      This is a short description of the video. Here you can add more information about the video, like its content or context.
+    </div>
+
+    <!-- Like, Dislike, and Subscribe Buttons -->
+    <div class="video-actions">
+      <button id="like-btn">Like</button>
+      <button id="dislike-btn">Dislike</button>
+      <button class="subscribe-btn" id="subscribe-btn">Subscribe</button>
+    </div>
+  </div>
+
+  <!-- Recommendations Section -->
+  <div class="recommendations" id="recommendations">
+    <!-- Recommended videos will be displayed here -->
+  </div>
+
+  <!-- Comments Section -->
+  <div class="comments-section">
+    <textarea class="comment-box" id="comment-box" placeholder="Add a comment..."></textarea>
+    <button id="post-comment-btn">Post Comment</button>
+
+    <div class="comment-list" id="comment-list">
+      <!-- Comments will be listed here -->
+    </div>
+  </div>
+
   <script src="https://apis.google.com/js/api.js"></script>
   <script>
-    const apiKey = 'AIzaSyBkPGe5Omx22wstG3ISozc1XkFjqqY5idM'; // Replace with your new YouTube API key
-    const searchBtn = document.getElementById('search-btn');
-    const searchInput = document.getElementById('search-query');
-    const videoList = document.getElementById('video-list');
+    const apiKey = 'AIzaSyBkPGe5Omx22wstG3ISozc1XkFjqqY5idM'; // Your YouTube API key
+    const recommendationsContainer = document.getElementById('recommendations');
+    const videoContainer = document.getElementById('video-container');
+    const videoIframe = document.getElementById('video-iframe');
+    const videoTitle = document.getElementById('video-title');
+    const videoDescription = document.getElementById('video-description');
+    const likeBtn = document.getElementById('like-btn');
+    const dislikeBtn = document.getElementById('dislike-btn');
+    const subscribeBtn = document.getElementById('subscribe-btn');
+    const commentBox = document.getElementById('comment-box');
+    const postCommentBtn = document.getElementById('post-comment-btn');
+    const commentList = document.getElementById('comment-list');
 
-    // Load the YouTube API client
+    // Load the YouTube Data API client
     function loadYouTubeClient() {
       gapi.client.setApiKey(apiKey);
       gapi.client.load('youtube', 'v3', function() {
         console.log('YouTube API client loaded successfully');
+        fetchRecommendations(); // Fetch video recommendations after loading the client
       });
     }
 
-    // Function to load videos based on search query
-    function loadVideos(query) {
-      if (!gapi.client.youtube) {
-        console.error('YouTube API client not loaded');
-        return;
-      }
-
+    // Fetch video recommendations based on a sample video ID
+    function fetchRecommendations() {
       const request = gapi.client.youtube.search.list({
         part: 'snippet',
-        q: query, // Search query
+        relatedToVideoId: '6iTgOWwkWC8', // Sample video ID
         type: 'video',
-        maxResults: 6
+        maxResults: 5
       });
 
       request.execute(function(response) {
         if (response.error) {
-          console.error('Error fetching videos:', response.error);
+          console.error('Error fetching recommendations:', response.error);
         } else {
-          displayVideos(response.items);
+          displayRecommendations(response.items);
         }
       });
     }
 
-    // Function to display videos on the page
-    function displayVideos(videos) {
-      videoList.innerHTML = ''; // Clear previous results
+    // Display recommended videos as clickable thumbnails
+    function displayRecommendations(videos) {
+      recommendationsContainer.innerHTML = ''; // Clear previous recommendations
 
       videos.forEach(video => {
-        const videoCard = document.createElement('div');
-        videoCard.classList.add('video-card');
+        const recommendation = document.createElement('div');
+        recommendation.classList.add('recommendation');
+        recommendation.onclick = () => loadVideo(video.id.videoId, video.snippet.title, video.snippet.description);
 
-        const videoIframe = document.createElement('iframe');
-        videoIframe.src = `https://www.youtube.com/embed/${video.id.videoId}`;
-        videoCard.appendChild(videoIframe);
+        const thumbnail = document.createElement('img');
+        thumbnail.src = video.snippet.thumbnails.high.url;
 
-        const title = document.createElement('h3');
-        title.textContent = video.snippet.title;
-        videoCard.appendChild(title);
-
-        videoList.appendChild(videoCard);
+        recommendation.appendChild(thumbnail);
+        recommendationsContainer.appendChild(recommendation);
       });
     }
 
-    // Initialize YouTube API client when the page loads
-    window.onload = function() {
-      gapi.load('client', loadYouTubeClient); // Load API client and then search
-    };
+    // Load selected video into the main player
+    function loadVideo(videoId, title, description) {
+      videoIframe.src = `https://www.youtube.com/embed/${videoId}`;
+      videoTitle.textContent = title;
+      videoDescription.textContent = description;
+    }
 
-    // Add event listener to the search button
-    searchBtn.addEventListener('click', () => {
-      const query = searchInput.value.trim();
-      if (query) {
-        loadVideos(query);
+    // Handle like, dislike, and subscribe actions
+    likeBtn.addEventListener('click', () => alert('You liked this video!'));
+    dislikeBtn.addEventListener('click', () => alert('You disliked this video!'));
+    subscribeBtn.addEventListener('click', () => alert('You subscribed to this channel!'));
+
+    // Handle posting a comment
+    postCommentBtn.addEventListener('click', () => {
+      const commentText = commentBox.value.trim();
+      if (commentText) {
+        const comment = document.createElement('div');
+        comment.classList.add('comment');
+        comment.innerHTML = `<span class="username">User:</span> ${commentText}`;
+        commentList.appendChild(comment);
+        commentBox.value = ''; // Clear the comment box
       }
     });
+
+    // Initialize the YouTube API client when the page loads
+    window.onload = function() {
+      gapi.load('client', loadYouTubeClient); // Load API client and then fetch recommendations
+    };
   </script>
 
 </body>
