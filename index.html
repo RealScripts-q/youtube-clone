@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Clone</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      background-color: #FF0000;
+      color: white;
+      text-align: center;
+      width: 100%;
+      padding: 10px 0;
+    }
+
+    h1 {
+      margin: 10px 0;
+    }
+
+    #video-list {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      width: 80%;
+      margin-top: 20px;
+    }
+
+    .video-card {
+      width: 300px;
+      margin: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background-color: white;
+    }
+
+    .video-card iframe {
+      width: 100%;
+      height: 200px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .video-card h3 {
+      padding: 10px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    input {
+      padding: 10px;
+      margin-top: 20px;
+      font-size: 16px;
+      width: 300px;
+    }
+
+    button {
+      padding: 10px;
+      margin: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>YouTube Clone</h1>
+    <input type="text" id="search-query" placeholder="Search for videos..." />
+    <button id="search-btn">Search</button>
+  </header>
+
+  <div id="video-list">
+    <!-- Videos will appear here -->
+  </div>
+
+  <!-- YouTube API Script -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script>
+    const apiKey = 'AIzaSyAgPgbCB_o8Ent3VGuh-JbrR7br98mra5k'; // Replace with your YouTube API key
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-query');
+    const videoList = document.getElementById('video-list');
+
+    // Function to load videos based on search query
+    function loadVideos(query) {
+      gapi.client.setApiKey(apiKey);
+      gapi.client.load('youtube', 'v3', function() {
+        const request = gapi.client.youtube.search.list({
+          part: 'snippet',
+          q: query, // Search query
+          type: 'video',
+          maxResults: 6
+        });
+
+        request.execute(function(response) {
+          displayVideos(response.items);
+        });
+      });
+    }
+
+    // Function to display videos on the page
+    function displayVideos(videos) {
+      videoList.innerHTML = ''; // Clear previous results
+
+      videos.forEach(video => {
+        const videoCard = document.createElement('div');
+        videoCard.classList.add('video-card');
+
+        const videoIframe = document.createElement('iframe');
+        videoIframe.src = `https://www.youtube.com/embed/${video.id.videoId}`;
+        videoCard.appendChild(videoIframe);
+
+        const title = document.createElement('h3');
+        title.textContent = video.snippet.title;
+        videoCard.appendChild(title);
+
+        videoList.appendChild(videoCard);
+      });
+    }
+
+    // Function to initialize YouTube API client
+    function init() {
+      gapi.load('client', () => {
+        searchBtn.addEventListener('click', () => {
+          const query = searchInput.value;
+          if (query) {
+            loadVideos(query);
+          }
+        });
+      });
+    }
+
+    // Initialize the API when the page is loaded
+    window.onload = init;
+  </script>
+
+</body>
+</html>
