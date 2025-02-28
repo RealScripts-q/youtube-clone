@@ -179,57 +179,6 @@
       border-radius: 8px;
     }
 
-    .channel-info {
-      margin-top: 30px;
-      width: 853px;
-      background-color: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .channel-banner {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
-    .channel-name {
-      font-size: 28px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .channel-description {
-      margin-top: 10px;
-      font-size: 16px;
-      color: #555;
-    }
-
-    .channel-videos {
-      margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-    }
-
-    .channel-video {
-      width: 200px;
-      margin: 10px;
-      cursor: pointer;
-      transition: transform 0.3s;
-    }
-
-    .channel-video img {
-      width: 100%;
-      border-radius: 8px;
-    }
-
-    .channel-video:hover {
-      transform: scale(1.05);
-    }
-
   </style>
 </head>
 <body>
@@ -283,17 +232,6 @@
     </div>
   </div>
 
-  <!-- Channel Info Section -->
-  <div class="channel-info" id="channel-info" style="display: none;">
-    <img id="channel-banner" class="channel-banner" src="" alt="Channel Banner">
-    <div class="channel-name" id="channel-name"></div>
-    <div class="channel-description" id="channel-description"></div>
-
-    <div class="channel-videos" id="channel-videos">
-      <!-- Channel videos will be displayed here -->
-    </div>
-  </div>
-
   <script src="https://apis.google.com/js/api.js"></script>
   <script>
     const apiKey = 'AIzaSyBkPGe5Omx22wstG3ISozc1XkFjqqY5idM'; // Your YouTube API key
@@ -312,11 +250,6 @@
     const userProfile = document.getElementById('user-profile');
     const userPfp = document.getElementById('user-pfp');
     const userChannel = document.getElementById('user-channel');
-    const channelInfo = document.getElementById('channel-info');
-    const channelBanner = document.getElementById('channel-banner');
-    const channelName = document.getElementById('channel-name');
-    const channelDescription = document.getElementById('channel-description');
-    const channelVideos = document.getElementById('channel-videos');
 
     let selectedVideoId = null;
     let userChannelId = null;
@@ -379,93 +312,88 @@
       selectedVideoId = videoId;
     }
 
-    // Show user profile and channel info
+    // Show user profile and channel
     function showUserProfile(channelTitle, channelId) {
       userProfile.style.display = 'block';
       userChannel.textContent = `Go to ${channelTitle}'s Channel`;
       userChannel.href = `https://www.youtube.com/channel/${channelId}`;
       userPfp.src = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
-
-      // Show channel info
-      fetchChannelInfo(channelId);
-      selectedVideoId = channelId;
+      userChannelId = channelId;
     }
 
-    // Fetch channel details (banner, name, description, and videos)
-    function fetchChannelInfo(channelId) {
-      const request = gapi.client.youtube.channels.list({
-        part: 'snippet,contentDetails',
-        id: channelId
-      });
-
-      request.execute(function(response) {
-        if (response.error) {
-          console.error('Error fetching channel info:', response.error);
-        } else {
-          const channel = response.items[0];
-          channelBanner.src = channel.snippet.thumbnails.high.url;
-          channelName.textContent = channel.snippet.title;
-          channelDescription.textContent = channel.snippet.description;
-
-          // Fetch the videos of the channel
-          fetchChannelVideos(channelId);
-        }
-      });
-    }
-
-    // Fetch channel videos and display them
-    function fetchChannelVideos(channelId) {
-      const request = gapi.client.youtube.search.list({
-        part: 'snippet',
-        channelId: channelId,
-        maxResults: 5
-      });
-
-      request.execute(function(response) {
-        if (response.error) {
-          console.error('Error fetching channel videos:', response.error);
-        } else {
-          displayChannelVideos(response.items);
-        }
-      });
-    }
-
-    // Display videos on the channel page
-    function displayChannelVideos(videos) {
-      channelVideos.innerHTML = ''; // Clear previous videos
-
-      videos.forEach(video => {
-        const channelVideo = document.createElement('div');
-        channelVideo.classList.add('channel-video');
-        channelVideo.onclick = () => loadVideo(video.id.videoId, video.snippet.title, video.snippet.description, video.snippet.channelTitle, video.snippet.channelId);
-
-        const thumbnail = document.createElement('img');
-        thumbnail.src = video.snippet.thumbnails.high.url;
-
-        channelVideo.appendChild(thumbnail);
-        channelVideos.appendChild(channelVideo);
-      });
-    }
-
-    // Handle posting comments
-    postCommentBtn.addEventListener('click', () => {
-      const commentText = commentBox.value.trim();
-      if (commentText) {
-        const newComment = document.createElement('div');
-        newComment.classList.add('comment');
-        newComment.innerHTML = `<span class="username">You:</span> ${commentText}`;
-        commentList.appendChild(newComment);
-        commentBox.value = ''; // Clear comment box
+    // Like the video
+    likeBtn.addEventListener('click', () => {
+      if (selectedVideoId) {
+        const request = gapi.client.youtube.videos.rate({
+          id: selectedVideoId,
+          rating: 'like'
+        });
+        request.execute(() => alert('You liked this video!'));
       }
     });
 
-    // Handle search for channels
-    searchBar.addEventListener('input', (event) => {
+    // Dislike the video
+    dislikeBtn.addEventListener('click', () => {
+      if (selectedVideoId) {
+        const request = gapi.client.youtube.videos.rate({
+          id: selectedVideoId,
+          rating: 'dislike'
+        });
+        request.execute(() => alert('You disliked this video!'));
+      }
+    });
+
+    // Subscribe to the channel
+    subscribeBtn.addEventListener('click', () => {
+      if (userChannelId) {
+        const request = gapi.client.youtube.subscriptions.insert({
+          part: 'snippet',
+          snippet: {
+            resourceId: {
+              kind: 'youtube#channel',
+              channelId: userChannelId
+            }
+          }
+        });
+        request.execute(() => alert('You subscribed to this channel!'));
+      }
+    });
+
+    // Post a comment
+    postCommentBtn.addEventListener('click', () => {
+      const commentText = commentBox.value.trim();
+      if (commentText && selectedVideoId) {
+        const request = gapi.client.youtube.commentThreads.insert({
+          part: 'snippet',
+          snippet: {
+            videoId: selectedVideoId,
+            topLevelComment: {
+              snippet: {
+                textOriginal: commentText
+              }
+            }
+          }
+        });
+
+        request.execute(function(response) {
+          if (response.error) {
+            console.error('Error posting comment:', response.error);
+          } else {
+            const newComment = document.createElement('div');
+            newComment.classList.add('comment');
+            newComment.innerHTML = `<span class="username">You:</span> ${commentText}`;
+            commentList.appendChild(newComment);
+            commentBox.value = '';
+          }
+        });
+      }
+    });
+
+    // Search for YouTube channels based on user input
+    function searchChannels(event) {
       const query = event.target.value.trim();
       if (query.startsWith('@')) {
-        const channelQuery = query.slice(1); // Remove '@' for channel search
-
-        // Make a YouTube API request to search for channels
+        const channelQuery = query.slice(1); // Remove the "@" symbol
         const request = gapi.client.youtube.search.list({
           part: 'snippet',
           q: channelQuery,
@@ -481,28 +409,28 @@
           }
         });
       }
-    });
+    }
 
-    // Display search results (channels)
+    // Display search results for channels
     function displaySearchResults(channels) {
-      searchResults.innerHTML = ''; // Clear previous results
+      searchResults.innerHTML = ''; // Clear previous search results
 
       channels.forEach(channel => {
         const searchResult = document.createElement('div');
         searchResult.classList.add('search-result');
-        searchResult.onclick = () => loadChannel(channel.snippet.channelId);
+        searchResult.onclick = () => window.open(`https://www.youtube.com/channel/${channel.id.channelId}`, '_blank');
 
         const thumbnail = document.createElement('img');
         thumbnail.src = channel.snippet.thumbnails.high.url;
+
         searchResult.appendChild(thumbnail);
-
-        const title = document.createElement('div');
-        title.textContent = channel.snippet.title;
-        searchResult.appendChild(title);
-
         searchResults.appendChild(searchResult);
       });
     }
+
+    // Initialize the API Client
+    gapi.load('client', loadYouTubeClient);
+
   </script>
 
 </body>
