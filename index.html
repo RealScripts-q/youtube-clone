@@ -161,7 +161,7 @@
 
   <!-- Video Container -->
   <div class="video-container" id="video-container">
-    <iframe id="video-iframe" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <!-- Video will be embedded dynamically here -->
   </div>
 
   <!-- Video Information Section -->
@@ -197,7 +197,6 @@
     const apiKey = 'AIzaSyBkPGe5Omx22wstG3ISozc1XkFjqqY5idM'; // Your YouTube API key
     const recommendationsContainer = document.getElementById('recommendations');
     const videoContainer = document.getElementById('video-container');
-    const videoIframe = document.getElementById('video-iframe');
     const videoTitle = document.getElementById('video-title');
     const videoDescription = document.getElementById('video-description');
     const likeBtn = document.getElementById('like-btn');
@@ -253,7 +252,10 @@
 
     // Load selected video into the main player
     function loadVideo(videoId, title, description) {
-      videoIframe.src = `https://www.youtube.com/embed/${videoId}`;
+      // Embed the selected video dynamically
+      videoContainer.innerHTML = `<iframe width="853" height="480" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+
+      // Update video information (title and description)
       videoTitle.textContent = title;
       videoDescription.textContent = description;
     }
