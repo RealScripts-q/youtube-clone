@@ -1,437 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Clone</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-
-    header {
-      background-color: #FF0000;
-      color: white;
-      text-align: center;
-      width: 100%;
-      padding: 10px 0;
-    }
-
-    h1 {
-      margin: 10px 0;
-    }
-
-    .video-container {
-      width: 853px;
-      height: 480px;
-      position: relative;
-      margin-top: 20px;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-    }
-
-    .video-info {
-      margin-top: 20px;
-      width: 853px;
-      padding: 15px;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .video-title {
-      font-size: 24px;
-      font-weight: bold;
-    }
-
-    .video-description {
-      margin-top: 10px;
-      font-size: 16px;
-      color: #555;
-    }
-
-    .video-actions {
-      margin-top: 15px;
-      display: flex;
-      align-items: center;
-    }
-
-    .video-actions button {
-      padding: 8px 15px;
-      margin-right: 10px;
-      cursor: pointer;
-      background-color: #f1f1f1;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-
-    .video-actions button:hover {
-      background-color: #ddd;
-    }
-
-    .subscribe-btn {
-      background-color: #FF0000;
-      color: white;
-      font-weight: bold;
-    }
-
-    .comments-section {
-      margin-top: 40px;
-      width: 853px;
-      background-color: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .comment-box {
-      margin-top: 10px;
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    .comment-box:focus {
-      outline: none;
-      border-color: #FF0000;
-    }
-
-    .comment-list {
-      margin-top: 20px;
-    }
-
-    .comment {
-      margin-bottom: 15px;
-      font-size: 16px;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    .comment .username {
-      font-weight: bold;
-    }
-
-    .recommendations {
-      margin-top: 30px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      width: 80%;
-    }
-
-    .recommendation {
-      width: 150px;
-      margin: 10px;
-      cursor: pointer;
-      transition: transform 0.3s;
-    }
-
-    .recommendation img {
-      width: 100%;
-      border-radius: 8px;
-    }
-
-    .recommendation:hover {
-      transform: scale(1.05);
-    }
-
-    #search-bar {
-      margin-top: 20px;
-      padding: 10px;
-      width: 300px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-
-    #search-results {
-      margin-top: 20px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      width: 80%;
-    }
-
-    .search-result {
-      width: 150px;
-      margin: 10px;
-      cursor: pointer;
-    }
-
-    .search-result img {
-      width: 100%;
-      border-radius: 8px;
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sign-In with Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <h2>Google Sign-In with Firebase</h2>
+    <button id="googleSignIn">Sign in with Google</button>
+    <button id="signOut" style="display:none;">Sign Out</button>
+    <p id="userInfo"></p>
 
-  <header>
-    <h1>YouTube Clone</h1>
-  </header>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4HiV-vR8ZwqH2VIAT9HaPC--lPVN6B1U",
+            authDomain: "memechat2-54d1d.firebaseapp.com",
+            databaseURL: "https://memechat2-54d1d-default-rtdb.firebaseio.com",
+            projectId: "memechat2-54d1d",
+            storageBucket: "memechat2-54d1d.firebasestorage.app",
+            messagingSenderId: "598300946052",
+            appId: "1:598300946052:web:7eed3b96d89933b1159cd1"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const provider = new firebase.auth.GoogleAuthProvider();
 
-  <!-- Search Bar -->
-  <input type="text" id="search-bar" placeholder="Search for channels..." oninput="searchChannels(event)">
-
-  <!-- Search Results -->
-  <div id="search-results"></div>
-
-  <!-- Video Container -->
-  <div class="video-container" id="video-container">
-    <!-- Video will be embedded dynamically here -->
-  </div>
-
-  <!-- Video Information Section -->
-  <div class="video-info" id="video-info">
-    <div class="video-title" id="video-title">Video Title</div>
-    <div class="video-description" id="video-description">Video description will appear here...</div>
-
-    <!-- Like, Dislike, and Subscribe Buttons -->
-    <div class="video-actions">
-      <button id="like-btn">Like</button>
-      <button id="dislike-btn">Dislike</button>
-      <button class="subscribe-btn" id="subscribe-btn">Subscribe</button>
-    </div>
-
-    <!-- User Profile Picture and Channel -->
-    <div id="user-profile" style="display: none;">
-      <img id="user-pfp" src="" alt="User Profile Picture" style="width: 50px; height: 50px; border-radius: 50%;">
-      <a href="" target="_blank" id="user-channel">Go to Channel</a>
-    </div>
-  </div>
-
-  <!-- Recommendations Section -->
-  <div class="recommendations" id="recommendations">
-    <!-- Recommended videos will be displayed here -->
-  </div>
-
-  <!-- Comments Section -->
-  <div class="comments-section">
-    <textarea class="comment-box" id="comment-box" placeholder="Add a comment..."></textarea>
-    <button id="post-comment-btn">Post Comment</button>
-
-    <div class="comment-list" id="comment-list">
-      <!-- Comments will be listed here -->
-    </div>
-  </div>
-
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script>
-    const apiKey = 'AIzaSyBkPGe5Omx22wstG3ISozc1XkFjqqY5idM'; // Your YouTube API key
-    const recommendationsContainer = document.getElementById('recommendations');
-    const videoContainer = document.getElementById('video-container');
-    const videoTitle = document.getElementById('video-title');
-    const videoDescription = document.getElementById('video-description');
-    const likeBtn = document.getElementById('like-btn');
-    const dislikeBtn = document.getElementById('dislike-btn');
-    const subscribeBtn = document.getElementById('subscribe-btn');
-    const commentBox = document.getElementById('comment-box');
-    const postCommentBtn = document.getElementById('post-comment-btn');
-    const commentList = document.getElementById('comment-list');
-    const searchBar = document.getElementById('search-bar');
-    const searchResults = document.getElementById('search-results');
-    const userProfile = document.getElementById('user-profile');
-    const userPfp = document.getElementById('user-pfp');
-    const userChannel = document.getElementById('user-channel');
-
-    let selectedVideoId = null;
-    let userChannelId = null;
-
-    // Load the YouTube Data API client
-    function loadYouTubeClient() {
-      gapi.client.setApiKey(apiKey);
-      gapi.client.load('youtube', 'v3', function() {
-        console.log('YouTube API client loaded successfully');
-        fetchRecommendations(); // Fetch video recommendations after loading the client
-      });
-    }
-
-    // Fetch video recommendations
-    function fetchRecommendations() {
-      const request = gapi.client.youtube.search.list({
-        part: 'snippet',
-        type: 'video',
-        maxResults: 5,
-        order: 'viewCount' // Fetch the most popular videos
-      });
-
-      request.execute(function(response) {
-        if (response.error) {
-          console.error('Error fetching recommendations:', response.error);
-        } else {
-          displayRecommendations(response.items);
-        }
-      });
-    }
-
-    // Display recommended videos as clickable thumbnails
-    function displayRecommendations(videos) {
-      recommendationsContainer.innerHTML = ''; // Clear previous recommendations
-
-      videos.forEach(video => {
-        const recommendation = document.createElement('div');
-        recommendation.classList.add('recommendation');
-        recommendation.onclick = () => loadVideo(video.id.videoId, video.snippet.title, video.snippet.description, video.snippet.channelTitle, video.snippet.channelId);
-
-        const thumbnail = document.createElement('img');
-        thumbnail.src = video.snippet.thumbnails.high.url;
-
-        recommendation.appendChild(thumbnail);
-        recommendationsContainer.appendChild(recommendation);
-      });
-    }
-
-    // Load selected video into the main player
-    function loadVideo(videoId, title, description, channelTitle, channelId) {
-      // Embed the selected video dynamically
-      videoContainer.innerHTML = `<iframe width="853" height="480" src="https://www.youtube.com/embed/${videoId}" title="${title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
-
-      // Update video information (title and description)
-      videoTitle.textContent = title;
-      videoDescription.textContent = description;
-
-      // Show user profile info
-      showUserProfile(channelTitle, channelId);
-      selectedVideoId = videoId;
-    }
-
-    // Show user profile and channel
-    function showUserProfile(channelTitle, channelId) {
-      userProfile.style.display = 'block';
-      userChannel.textContent = `Go to ${channelTitle}'s Channel`;
-      userChannel.href = `https://www.youtube.com/channel/${channelId}`;
-      userPfp.src = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
-      userChannelId = channelId;
-    }
-
-    // Like the video
-    likeBtn.addEventListener('click', () => {
-      if (selectedVideoId) {
-        const request = gapi.client.youtube.videos.rate({
-          id: selectedVideoId,
-          rating: 'like'
-        });
-        request.execute(() => alert('You liked this video!'));
-      }
-    });
-
-    // Dislike the video
-    dislikeBtn.addEventListener('click', () => {
-      if (selectedVideoId) {
-        const request = gapi.client.youtube.videos.rate({
-          id: selectedVideoId,
-          rating: 'dislike'
-        });
-        request.execute(() => alert('You disliked this video!'));
-      }
-    });
-
-    // Subscribe to the channel
-    subscribeBtn.addEventListener('click', () => {
-      if (userChannelId) {
-        const request = gapi.client.youtube.subscriptions.insert({
-          part: 'snippet',
-          snippet: {
-            resourceId: {
-              kind: 'youtube#channel',
-              channelId: userChannelId
-            }
-          }
-        });
-        request.execute(() => alert('You subscribed to this channel!'));
-      }
-    });
-
-    // Post a comment
-    postCommentBtn.addEventListener('click', () => {
-      const commentText = commentBox.value.trim();
-      if (commentText && selectedVideoId) {
-        const request = gapi.client.youtube.commentThreads.insert({
-          part: 'snippet',
-          snippet: {
-            videoId: selectedVideoId,
-            topLevelComment: {
-              snippet: {
-                textOriginal: commentText
-              }
-            }
-          }
+        document.getElementById("googleSignIn").addEventListener("click", function() {
+            auth.signInWithPopup(provider).then((result) => {
+                const user = result.user;
+                document.getElementById("userInfo").innerHTML = `Signed in as: ${user.displayName} (${user.email})`;
+                document.getElementById("googleSignIn").style.display = "none";
+                document.getElementById("signOut").style.display = "block";
+            }).catch((error) => {
+                console.error("Error signing in: ", error);
+            });
         });
 
-        request.execute(function(response) {
-          if (response.error) {
-            console.error('Error posting comment:', response.error);
-          } else {
-            const newComment = document.createElement('div');
-            newComment.classList.add('comment');
-            newComment.innerHTML = `<span class="username">You:</span> ${commentText}`;
-            commentList.appendChild(newComment);
-            commentBox.value = '';
-          }
+        document.getElementById("signOut").addEventListener("click", function() {
+            auth.signOut().then(() => {
+                document.getElementById("userInfo").innerHTML = "";
+                document.getElementById("googleSignIn").style.display = "block";
+                document.getElementById("signOut").style.display = "none";
+            }).catch((error) => {
+                console.error("Error signing out: ", error);
+            });
         });
-      }
-    });
-
-    // Search for YouTube channels based on user input
-    function searchChannels(event) {
-      const query = event.target.value.trim();
-      if (query.startsWith('@')) {
-        const channelQuery = query.slice(1); // Remove the "@" symbol
-        const request = gapi.client.youtube.search.list({
-          part: 'snippet',
-          q: channelQuery,
-          type: 'channel',
-          maxResults: 5
-        });
-
-        request.execute(function(response) {
-          if (response.error) {
-            console.error('Error searching channels:', response.error);
-          } else {
-            displaySearchResults(response.items);
-          }
-        });
-      }
-    }
-
-    // Display search results for channels
-    function displaySearchResults(channels) {
-      searchResults.innerHTML = ''; // Clear previous search results
-
-      channels.forEach(channel => {
-        const searchResult = document.createElement('div');
-        searchResult.classList.add('search-result');
-        searchResult.onclick = () => window.open(`https://www.youtube.com/channel/${channel.id.channelId}`, '_blank');
-
-        const thumbnail = document.createElement('img');
-        thumbnail.src = channel.snippet.thumbnails.high.url;
-
-        searchResult.appendChild(thumbnail);
-        searchResults.appendChild(searchResult);
-      });
-    }
-
-    // Initialize the API Client
-    gapi.load('client', loadYouTubeClient);
-
-  </script>
-
+    </script>
 </body>
 </html>
