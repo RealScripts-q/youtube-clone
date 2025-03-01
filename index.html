@@ -6,6 +6,7 @@
     <title>Google Sign-In with Firebase</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -26,44 +27,48 @@
     <p id="userInfo"></p>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyB4HiV-vR8ZwqH2VIAT9HaPC--lPVN6B1U",
-            authDomain: "memechat2-54d1d.firebaseapp.com",
-            databaseURL: "https://memechat2-54d1d-default-rtdb.firebaseio.com",
-            projectId: "memechat2-54d1d",
-            storageBucket: "memechat2-54d1d.firebasestorage.app",
-            messagingSenderId: "598300946052",
-            appId: "1:598300946052:web:7eed3b96d89933b1159cd1"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const provider = new firebase.auth.GoogleAuthProvider();
+        window.onload = function() {
+            try {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyB4HiV-vR8ZwqH2VIAT9HaPC--lPVN6B1U",
+                    authDomain: "memechat2-54d1d.firebaseapp.com",
+                    databaseURL: "https://memechat2-54d1d-default-rtdb.firebaseio.com",
+                    projectId: "memechat2-54d1d",
+                    storageBucket: "memechat2-54d1d.firebasestorage.app",
+                    messagingSenderId: "598300946052",
+                    appId: "1:598300946052:web:7eed3b96d89933b1159cd1"
+                };
+                
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                const auth = firebase.auth();
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ client_id: "331493991112-ea2anjgnltdi0mrvdfmkmg725a13e9fa.apps.googleusercontent.com" });
+                
+                document.getElementById("googleSignIn").addEventListener("click", function() {
+                    auth.signInWithPopup(provider).then((result) => {
+                        const user = result.user;
+                        document.getElementById("userInfo").innerHTML = `Signed in as: ${user.displayName} (${user.email})`;
+                        document.getElementById("googleSignIn").style.display = "none";
+                        document.getElementById("signOut").style.display = "block";
+                    }).catch((error) => {
+                        console.error("Error signing in: ", error);
+                    });
+                });
 
-        document.getElementById("googleSignIn").addEventListener("click", function() {
-            auth.signInWithPopup(provider).then((result) => {
-                const user = result.user;
-                document.getElementById("userInfo").innerHTML = `Signed in as: ${user.displayName} (${user.email})`;
-                document.getElementById("googleSignIn").style.display = "none";
-                document.getElementById("signOut").style.display = "block";
-            }).catch((error) => {
-                console.error("Error signing in: ", error);
-            });
-        });
+                document.getElementById("signOut").addEventListener("click", function() {
+                    auth.signOut().then(() => {
+                        document.getElementById("userInfo").innerHTML = "";
+                        document.getElementById("googleSignIn").style.display = "block";
+                        document.getElementById("signOut").style.display = "none";
+                    }).catch((error) => {
+                        console.error("Error signing out: ", error);
+                    });
+                });
 
-        document.getElementById("signOut").addEventListener("click", function() {
-            auth.signOut().then(() => {
-                document.getElementById("userInfo").innerHTML = "";
-                document.getElementById("googleSignIn").style.display = "block";
-                document.getElementById("signOut").style.display = "none";
-            }).catch((error) => {
-                console.error("Error signing out: ", error);
-            });
-        });
-
-        // Ensure Firebase is properly loaded
-        if (!firebase.apps.length) {
-            console.error("Firebase not initialized correctly.");
+            } catch (error) {
+                console.error("Error initializing Firebase: ", error);
+            }
         }
     </script>
 </body>
