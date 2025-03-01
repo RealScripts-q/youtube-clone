@@ -60,6 +60,11 @@
                 console.error("Error signing out: ", error);
             });
         });
+
+        // Ensure Firebase is properly loaded
+        if (!firebase.apps.length) {
+            console.error("Firebase not initialized correctly.");
+        }
     </script>
 </body>
 </html>
